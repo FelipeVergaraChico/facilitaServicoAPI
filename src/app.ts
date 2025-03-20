@@ -1,6 +1,5 @@
 import express from "express";
 import config from "config";
-import index from "./routes/index";
 
 const app = express();
 
@@ -15,6 +14,7 @@ app.listen(port, async () => {
 });
 
 //Routes
+import index from "./routes/index";
 app.use("/test", index);
 
 export default app;
