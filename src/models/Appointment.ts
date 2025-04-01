@@ -13,8 +13,17 @@ const appointmentSchema = new Schema(
         day: { type: Date, required: true },
         hour: { type: String, required: true },
         address: { type: String, required: true },
-        acceptByAutonomous: { type: String, enum: ["yes", "no"], required: true },
-        status: { type: String, enum: ["pending", "finished"], default: "pending", required: true },
+        acceptedBySelfEmployed: { 
+            type: Boolean, 
+            default: null, 
+            required: true 
+        },
+        status: { 
+            type: String, 
+            enum: ["pending", "finished", "rejected"], 
+            default: "pending", 
+            required: true 
+        },
     },
     { timestamps: true }
 )
