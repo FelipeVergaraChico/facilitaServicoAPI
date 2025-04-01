@@ -3,12 +3,14 @@ import { model, Schema } from "mongoose";
 const appointmentSchema = new Schema(
     {
         client: {
-            type: { name: String, email: String },
-            required: true
+            _id: { type: Schema.Types.ObjectId, required: true },
+            name: { type: String, required: true },
+            email: { type: String, required: true },
         },
         selfEmployed: {
-            type: { name: String, email: String },
-            required: true
+            _id: { type: Schema.Types.ObjectId, required: true },
+            name: { type: String, required: true },
+            email: { type: String, required: true },
         },
         day: { type: Date, required: true },
         hour: { type: String, required: true },
