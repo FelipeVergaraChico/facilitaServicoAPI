@@ -9,7 +9,7 @@ const userSchema = new Schema(
         address: { type: String, required: true },
         cep: { type: String, required: true },
         birthday: { type: Date, required: true },
-        position: { type: String, default: "Member", required: true },
+        position: { type: String, default: "Client", required: true },
     },
     { timestamps: true }
 )
