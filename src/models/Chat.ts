@@ -6,6 +6,11 @@ const chatSchema = new Schema(
             client_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
             employed_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
         },
+        appointmentId: { 
+            type: Schema.Types.ObjectId, 
+            ref: "Appointment",
+            required: true
+        },
     },
     { timestamps: true }
 );
