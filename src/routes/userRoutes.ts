@@ -1,8 +1,11 @@
 import {Router} from "express"
 
+// Controllers
+import { createUsers } from "../controller/userController"
+
 const router = Router()
 
-router.post("/register", /* verfyToken, */ /*createUser */ )
+router.post("/register", createUsers /* verfyToken, */ /*createUser */ )
 router.post("/login", /* verfyToken, */ /*loginUser */ )
 
 router.get("/checkuser", /* checkuser */ )
