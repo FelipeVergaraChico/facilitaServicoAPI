@@ -7,8 +7,9 @@ const serviceAdSchema = new Schema(
         price: { type: Number, required: true },
         category: { type: String, required: true },
         selfEmployed: {
-            type: { name: String, email: String },
-            required: true
+            _id: { type: Schema.Types.ObjectId, required: true },  // Usando _id ao invés de id
+            name: { type: String, required: true },
+            email: { type: String, required: true },
         }
     },
     { timestamps: true }
