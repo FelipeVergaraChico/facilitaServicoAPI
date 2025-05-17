@@ -11,7 +11,7 @@ import Logger from "../../config/logger";
 
 export async function createUsers(req: Request, res: Response): Promise<void> {
     try {
-        const { name, email, password, cpfcnpj, address, cep, birthday, position } = req.body;
+        const { name, email, job, password, cpfcnpj, address, cep, birthday, position } = req.body;
 
         const salt = await bcrypt.genSalt(12);
         const passwordHash = await bcrypt.hash(password, salt);
@@ -21,6 +21,7 @@ export async function createUsers(req: Request, res: Response): Promise<void> {
         const user = new UserModel({
             name: name,
             email: email,
+            job: job,
             password: passwordHash,
             cpfcnpj: cpfcnpj,
             address: address,
