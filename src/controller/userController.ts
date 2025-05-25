@@ -9,6 +9,9 @@ import { UserModel } from '../models/User'; // Assuming you have a User model de
 // Logger
 import Logger from "../../config/logger";
 
+// Middlewares
+import createUserToken from "../middleware/create-user-token";
+
 export async function createUsers(req: Request, res: Response): Promise<void> {
     try {
         const { name, email, job, password, cpfcnpj, address, cep, birthday, position } = req.body;
@@ -40,12 +43,25 @@ export async function createUsers(req: Request, res: Response): Promise<void> {
 export async function loginUser(req: Request, res: Response): Promise<void> {
     try {
         const { email, password } = req.body;
-        // Simulate user login logic
-        if (email === '' && password === '') {
-            res.status(401).json({ message: 'Invalid credentials' });
+
+        const user = await UserModel.findOne({ email });
+
+        // Verify User using Email
+        if (!user) {
+            res.status(400).json({ error: "Usuário ou senha incorretos." });
+            return;
         }
-        const token = 'fake-jwt-token'; // Simulate JWT token generation
-        res.status(200).json({ message: 'Login successful', token });
+
+        // Compare password encripted
+        const isMatchPassword = await bcrypt.compare(password, user.password);
+
+        // Verify Password
+        if (!isMatchPassword) {
+            res.status(400).json({ error: "Usuário ou senha incorretos." });
+            return;
+        }
+        
+        await createUserToken(user, req, res)
     }
     catch (error) {
         res.status(500).json({ message: 'Error logging in', error });
