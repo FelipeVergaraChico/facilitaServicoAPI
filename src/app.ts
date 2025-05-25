@@ -13,7 +13,7 @@ app.use(express.json());
 import db from "../config/db";
 
 //Routes
-import index from "./routes/index";
+import userRoutes from "./routes/userRoutes"
 
 // Logger
 import Logger from "../config/logger";
@@ -23,7 +23,8 @@ import morganMiddleware from "./middleware/morganMiddleware";
 
 app.use(morganMiddleware)
 
-app.use("/test", index);
+app.use("/user", userRoutes)
+
 
 // app port
 const port = config.get<number>("port");
