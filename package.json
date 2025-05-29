@@ -11,10 +11,14 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/config": "^3.3.5",
+    "@types/dotenv": "^8.2.3",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.9",
-    "@types/node": "^22.13.10",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.15.24",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
@@ -22,12 +26,15 @@
   },
   "dependencies": {
     "@types/express": "^5.0.1",
+    "bcrypt": "^6.0.0",
     "config": "^3.3.12",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
     "morgan": "^1.10.0",
+    "multer": "^2.0.0",
     "winston": "^3.17.0"
   }
 }
