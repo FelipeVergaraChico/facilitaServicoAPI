@@ -169,10 +169,11 @@ export async function getUserById(req: Request, res: Response): Promise<void> {
         }
 
         if (req.headers.authorization) {
-            const token = getToken(req);
+            const token = getToken(req)
+            const userToken = await getUserByToken(token)
             if (token) {
                 const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) as JwtPayload;
-                Logger.info(`Usuário ${decoded.name} entrou no perfil de ${user.name}`);
+                Logger.info(`Usuário ${(userToken.name)} entrou no perfil de ${user.name}`);
             }
         } else {
             Logger.info(`O Usuário "Anônimo" com IP ${req.ip} acessou o perfil de ${user.name}`);
