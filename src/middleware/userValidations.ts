@@ -3,6 +3,10 @@ import { body } from "express-validator"
 // Model
 import { UserModel } from "../models/User"
 
+// Middlewares
+import getToken from "./get-token";
+import getUserByToken from "./get-user-by-token";
+
 
 // import Logger from "../../config/logger";
 
@@ -106,11 +110,12 @@ export const userEditValidation = () => {
         body("email")
             .isEmail()
             .withMessage("Por favor, insira um e-mail válido")
-            .custom(async (value, { req }) => {
+            .custom(async (value, { req }: any) => {
                 const existingUser = await UserModel.findOne({ email: value });
-                const userId = req.params?.id ?? "";
+                const token = getToken(req);
+                const user = await getUserByToken(token)
 
-                if (existingUser && existingUser._id.toString() !== userId) {
+                if (existingUser && existingUser._id.toString() !== user._id.toString()) {
                     throw new Error("Esse e-mail já está em uso");
                 }
                 return true;
