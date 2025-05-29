@@ -83,7 +83,7 @@ export async function checkuser(req: Request, res: Response): Promise<void> {
                 return
             }
 
-            const decoded = jwt.verify(token, "meusecret") as JwtPayload
+            const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) as JwtPayload
 
             if (!decoded || !decoded.id) {
                 res.status(401).json({ message: "Token inválido" })
