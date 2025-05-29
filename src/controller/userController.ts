@@ -36,10 +36,10 @@ export async function createUsers(req: Request, res: Response): Promise<void> {
             position: position
         });
         const newUser = await user.save();
-        res.status(201).json({ message: 'User created successfully', user: newUser });
+        res.status(201).json({ message: 'Usuário criado com sucesso', user: newUser });
     } catch (error: any) {
         Logger.error(`Error: ${error.message}`);
-        res.status(500).json({ message: 'Error creating user', error });
+        res.status(500).json({ message: 'Erro na criação do usuário', error });
     }
 }
 
@@ -67,7 +67,7 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
         await createUserToken(user, req, res)
     }
     catch (error: any) {
-        res.status(500).json({ message: 'Error logging in', error });
+        res.status(500).json({ message: 'Erro ao logar', error });
     }
 }
 
@@ -100,7 +100,7 @@ export async function checkuser(req: Request, res: Response): Promise<void> {
 
         res.status(200).json(currentUser)
     } catch (error: any) {
-        res.status(500).json({ message: 'Error checking user', error })
+        res.status(500).json({ message: 'Erro ao Verificar usuário', error })
     }
 }
 
@@ -143,7 +143,7 @@ export async function editUser(req: Request, res: Response): Promise<void> {
 
         res.status(200).json({ message: "Usuário atualizado com sucesso" })
     } catch (error: any) {
-        res.status(500).json({ message: 'Error updating user', error })
+        res.status(500).json({ message: 'Erro ao editar usuário', error })
     }
 }
 
