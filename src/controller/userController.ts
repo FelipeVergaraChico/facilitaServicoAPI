@@ -1,16 +1,19 @@
-import { Request, Response } from 'express';
+import { Request, Response } from 'express'
+import jwt, { JwtPayload } from "jsonwebtoken"
 
 // Encript
-import bcrypt from "bcrypt";
+import bcrypt from "bcrypt"
 
 // Model
-import { UserModel } from '../models/User'; // Assuming you have a User model defined
+import { UserModel } from '../models/User'
 
 // Logger
-import Logger from "../../config/logger";
+import Logger from "../../config/logger"
 
 // Middlewares
-import createUserToken from "../middleware/create-user-token";
+import createUserToken from "../middleware/create-user-token"
+import getToken from '../middleware/get-token'
+import getUserByToken from '../middleware/get-user-by-token'
 
 export async function createUsers(req: Request, res: Response): Promise<void> {
     try {
@@ -63,70 +66,121 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
         
         await createUserToken(user, req, res)
     }
-    catch (error) {
+    catch (error: any) {
         res.status(500).json({ message: 'Error logging in', error });
     }
 }
 
-export async function getUsers(req: Request, res: Response): Promise<void> {
-    try {
-        const users = await UserModel.find();
-        res.status(200).json({ message: 'Users fetched successfully', users });
-    }
-    catch (error) {
-        res.status(500).json({ message: 'Error fetching users', error });
-    }
-}
-
+// Verify and return self user without password too.
 export async function checkuser(req: Request, res: Response): Promise<void> {
+    let currentUser = null
+
     try {
-        const { email } = req.body;
-        // Simulate user check logic
-        if (email === '') {
-            res.status(404).json({ message: 'User not found' });
+        if (req.headers.authorization) {
+            const token = getToken(req)
+            if (!token) {
+                res.status(401).json({ message: "Token inválido ou não fornecido" })
+                return
+            }
+
+            const decoded = jwt.verify(token, "meusecret") as JwtPayload
+
+            if (!decoded || !decoded.id) {
+                res.status(401).json({ message: "Token inválido" })
+                return
+            }
+
+            currentUser = await UserModel.findById(decoded.id).select("-password")
+
+            if (!currentUser) {
+                res.status(404).json({ message: "Usuário não encontrado" })
+                return
+            }
         }
-        res.status(200).json({ message: 'User exists' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error checking user', error });
+
+        res.status(200).json(currentUser)
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error checking user', error })
     }
 }
 
 export async function editUser(req: Request, res: Response): Promise<void> {
     try {
-        const { id } = req.params;
-        const { name, email, password, cpfcnpj, address, cep, birthday, position } = req.body;
-        // Simulate user update logic
-        const updatedUser = { id, name, email, password, cpfcnpj, address, cep, birthday, position };
-        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
-    } catch (error) {
-        res.status(500).json({ message: 'Error updating user', error });
-    }
-}
 
-export async function getUserById(req: Request, res: Response): Promise<void> {
-    try {
-        const { id } = req.params;
-        // Simulate fetching user by ID logic
-        const user = { id, name: 'John Doe', email: '', password: '', cpfcnpj: '', address: '', cep: '', birthday: '', position: '' };
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
         if (!user) {
-            res.status(404).json({ message: 'User not found' });
+            res.status(401).json({ message: "Usuário não autorizado" })
+            return
         }
-        res.status(200).json({ message: 'User fetched successfully', user });
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching user', error });
+
+        if(req.file){
+            user.image = req.file.filename
+        }
+
+        const { name, email, job, password, cpfcnpj, address, cep } = req.body
+
+
+        // Generate new hash to password
+        const salt = await bcrypt.genSalt(12)
+        const passwordHash = await bcrypt.hash(password, salt)
+
+        user.name = name
+        user.email = email
+        user.job = job
+        user.password = passwordHash
+        user.cpfcnpj = cpfcnpj
+        user.address = address
+        user.cep = cep
+
+        // Update Database
+        await UserModel.findOneAndUpdate(
+            { _id: user._id },
+            { $set: user },
+            { new: true }
+        );
+
+        res.status(200).json({ message: "Usuário atualizado com sucesso" })
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error updating user', error })
     }
 }
 
 export async function myProfile(req: Request, res: Response): Promise<void> {
     try {
-        const { id } = req.params;
-        // Simulate fetching user profile logic
-        const userProfile = { id, name: 'John Doe', email: '', password: '', cpfcnpj: '', address: '', cep: '', birthday: '', position: '' };
-        if (!userProfile) {
-            res.status(404).json({ message: 'User not found' });
+        const token = getToken(req);
+        const user = await getUserByToken(token)
+
+        res.status(200).json(user)
+    } catch (error: any) {
+        res.status(500).json({ message: 'Erro ao tentar acessar seu perfil', error });
+    }
+}
+
+export async function getUserById(req: Request, res: Response): Promise<void> {
+    const { id } = req.params
+    try {
+        const user = await UserModel.findOne({ _id: id }).select("-password");
+
+        if (!user) {
+            res.status(422).json({ message: "Usuário não encontrado" });
+            return;
         }
-        res.status(200).json({ message: 'User profile fetched successfully', userProfile });
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching user profile', error });
+
+        if (req.headers.authorization) {
+            const token = getToken(req);
+            if (token) {
+                const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) as JwtPayload;
+                Logger.info(`Usuário ${decoded.name} entrou no perfil de ${user.name}`);
+            }
+        } else {
+            Logger.info(`O Usuário "Anônimo" com IP ${req.ip} acessou o perfil de ${user.name}`);
+        }
+
+        res.status(200).json({ user });
+    } catch (error: any) {
+        Logger.error(`Erro ao buscar o usuário: ${error.message}`);
+        res.status(500).json({ message: "Erro ao buscar o usuário", error: error.message });
     }
 }
