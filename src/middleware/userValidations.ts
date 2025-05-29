@@ -75,6 +75,7 @@ export const userCreateValidation = () => {
                 if (value !== "Client" && value !== "Self-employed") {
                     throw new Error("Posição inválida")
                 }
+                return true
             })
     ]
 }
