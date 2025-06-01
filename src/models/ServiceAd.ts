@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 const serviceAdSchema = new Schema(
     {
@@ -7,10 +7,10 @@ const serviceAdSchema = new Schema(
         price: { type: Number, required: true },
         category: { type: String, required: true },
         selfEmployed: {
-            _id: { type: Schema.Types.ObjectId, required: true },  // Usando _id ao invés de id
-            name: { type: String, required: true },
-            email: { type: String, required: true },
-        }
+            type: Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
     },
     { timestamps: true }
 )
