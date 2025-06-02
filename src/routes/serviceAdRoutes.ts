@@ -8,7 +8,7 @@ import verifyToken from "../middleware/verify-token"
 
 // Validates
 import { validate } from "../middleware/handleValidation"
-import { createServiceAdValidation } from "../middleware/serviceAdValidations"
+import { createServiceAdValidation, editServiceAdValidation } from "../middleware/serviceAdValidations"
 
 const router = Router()
 
@@ -18,7 +18,7 @@ router.get("/user/:userId", getServiceAdByUser)
 router.get("/", getAllServiceAd)
 router.get("/:id", getServiceAdById)
 
-router.patch("/:id", verifyToken, /* validate */ editServiceAd)
+router.patch("/:id", verifyToken, editServiceAdValidation(), validate, editServiceAd)
 
 router.delete("/:id", verifyToken, deleteServiceAd)
 

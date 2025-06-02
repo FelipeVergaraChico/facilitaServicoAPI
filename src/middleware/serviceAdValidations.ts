@@ -33,3 +33,20 @@ export const createServiceAdValidation = () => {
             .withMessage("A categoria deve ser uma string"),
     ]
 }
+
+export const editServiceAdValidation = () => {
+  return [
+    body("title")
+      .notEmpty()
+      .withMessage("O título é obrigatório"),
+    body("description")
+      .notEmpty()
+      .withMessage("A descrição é obrigatória"),
+    body("price")
+      .isFloat({ min: 0 })
+      .withMessage("O preço deve ser um número positivo"),
+    body("category")
+      .notEmpty()
+      .withMessage("A categoria é obrigatória"),
+  ]
+}
