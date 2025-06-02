@@ -148,9 +148,27 @@ export async function editServiceAd(req: Request, res: Response): Promise<void> 
 }
 
 export async function deleteServiceAd(req: Request, res: Response): Promise<void> {
+    const { id } = req.params
+
     try {
+        const token = getToken(req)
+        const user = await getUserByToken(token)
 
+        const serviceAd = await ServiceAdModel.findById(id)
+
+        if (!serviceAd) {
+            res.status(404).json({ message: "Serviço não encontrado." })
+            return
+        }
+
+        if (serviceAd.selfEmployed.toString() !== user._id.toString()) {
+            res.status(403).json({ message: "Você não tem permissão para deletar este anúncio." })
+            return
+        }
+
+        await ServiceAdModel.findByIdAndDelete(id)
+        res.status(200).json({ message: "Serviço deletado com sucesso." })
     } catch (error: any) {
-
+        res.status(500).json({ message: "Erro ao deletar o serviço.", error: error.message })
     }
 }
