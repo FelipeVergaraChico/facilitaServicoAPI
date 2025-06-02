@@ -112,9 +112,38 @@ export async function getServiceAdById(req: Request, res: Response): Promise<voi
 
 export async function editServiceAd(req: Request, res: Response): Promise<void> {
     try {
+        const { id } = req.params
+
+        // Verify Ad Exists
+        const serviceAd = await ServiceAdModel.findById(id)
+        if (!serviceAd) {
+            res.status(404).json({ message: "Anúncio de serviço não encontrado." })
+            return;
+        }
+
+        // Verify Permission
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+        if (serviceAd.selfEmployed.toString() !== user._id.toString()) {
+            res.status(403).json({ message: "Você não tem permissão para editar este anúncio." })
+            return
+        }
+
+        // Update
+        const { title, description, price, category } = req.body
+
+        serviceAd.title = title
+        serviceAd.description = description
+        serviceAd.price = price
+        serviceAd.category = category
+
+        await serviceAd.save()
+
+        res.status(200).json({ message: "Anúncio atualizado com sucesso", serviceAd })
 
     } catch (error: any) {
-
+        res.status(500).json({ message: "Erro ao atualizar o anúncio", error: error.message })
     }
 }
 
