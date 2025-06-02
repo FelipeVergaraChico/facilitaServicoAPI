@@ -43,9 +43,19 @@ export async function createServiceAd(req: Request, res: Response): Promise<void
 
 export async function getServiceAdByUser(req: Request, res: Response): Promise<void> {
     try {
-        
+        const { userId } = req.params
+
+        const serviceAds = await ServiceAdModel.find({ selfEmployed: userId })
+
+        if (serviceAds.length === 0) {
+            res.status(404).json({ message: "Nenhum anúncio encontrado para esse usuário." })
+            return
+        }
+
+        res.status(200).json({ serviceAds })
+
     } catch (error: any) {
-        
+        res.status(500).json({ message: "Erro ao buscar anúncios do usuário", error: error.message })
     }
 }
 
