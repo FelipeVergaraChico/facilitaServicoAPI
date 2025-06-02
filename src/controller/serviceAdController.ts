@@ -60,10 +60,36 @@ export async function getServiceAdByUser(req: Request, res: Response): Promise<v
 }
 
 export async function getAllServiceAd(req: Request, res: Response): Promise<void> {
+    const { page = 1, limit = 10, category } = req.query
+
+    const pageNumber = parseInt(page as string, 10)
+    const limitNumber = parseInt(limit as string, 10)
+    const skip = (pageNumber - 1) * limitNumber
+
+    const filter: any = {}
+    if (category) {
+        filter.category = category
+    }
+
     try {
+        const total = await ServiceAdModel.countDocuments(filter)
+        const serviceAds = await ServiceAdModel.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNumber)
+            .populate("selfEmployed", "name email")
 
+        res.status(200).json({
+            serviceAds,
+            pagination: {
+                total,
+                page: pageNumber,
+                limit: limitNumber,
+                totalPages: Math.ceil(total / limitNumber),
+            },
+        })
     } catch (error: any) {
-
+        res.status(500).json({ message: "Erro ao buscar anúncios", error: error.message })
     }
 }
 
