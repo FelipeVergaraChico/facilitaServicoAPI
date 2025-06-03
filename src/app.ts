@@ -14,6 +14,7 @@ import db from "../config/db";
 
 //Routes
 import userRoutes from "./routes/userRoutes"
+import serviceAdRoutes from "./routes/serviceAdRoutes"
 
 // Logger
 import Logger from "../config/logger";
@@ -24,6 +25,8 @@ import morganMiddleware from "./middleware/morganMiddleware";
 app.use(morganMiddleware)
 
 app.use("/user", userRoutes)
+
+app.use("/servicead", serviceAdRoutes)
 
 
 // app port
