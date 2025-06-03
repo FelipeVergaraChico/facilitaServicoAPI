@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 
 // Model
 import { appointmentModel } from '../models/Appointment'
+import { chatModel } from "../models/Chat"
 
 // Logger
 import Logger from "../../config/logger"
@@ -18,22 +19,44 @@ export async function createAppointment(req: Request, res: Response): Promise<vo
         const token = getToken(req)
         const client = await getUserByToken(token)
 
-        const newAppointment = await appointmentModel.create({
+        if (!client) {
+            res.status(401).json({ message: "Acesso não autorizado." })
+            return
+        }
+
+        if (client._id.toString() === selfEmployed._id) {
+            res.status(400).json({ message: "Você não pode agendar com você mesmo." })
+            return
+        }
+
+        if (client.position !== "Client") {
+            res.status(403).json({ message: "Apenas clientes podem agendar serviços" })
+            return
+        }
+
+        const appointment = await appointmentModel.create({
             client: {
                 _id: client._id,
                 name: client.name,
-                email: client.email,
+                email: client.email
             },
             selfEmployed,
             day,
             address,
+            status: "pending",
+            acceptedBySelfEmployed: null
         })
 
-        Logger.info(`Novo agendamento criado por ${client.name}`)
-        res.status(201).json({ appointment: newAppointment })
+        await chatModel.create({
+            participants: [client._id, selfEmployed._id],
+            appointmentId: appointment._id
+        })
+
+        res.status(201).json({ message: "Agendamento criado com sucesso.", appointment })
+
     } catch (error: any) {
         Logger.error(`Erro ao criar agendamento: ${error.message}`)
-        res.status(500).json({ message: "Erro ao criar agendamento", error: error.message })
+        res.status(500).json({ message: "Erro ao criar agendamento." })
     }
 }
 
