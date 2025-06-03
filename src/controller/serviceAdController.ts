@@ -34,7 +34,7 @@ export async function createServiceAd(req: Request, res: Response): Promise<void
 
         const savedAd = await serviceAd.save()
 
-        Logger.info(`Usuário ${user.name} com id ${user._id} criou um serviço`);
+        Logger.info(`Usuário ${user.name} com id ${user._id} criou um serviço`)
 
         res.status(201).json({
             message: "Anúncio criado com sucesso!",
@@ -99,19 +99,19 @@ export async function getAllServiceAd(req: Request, res: Response): Promise<void
 }
 
 export async function getServiceAdById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { id } = req.params
 
     try {
-        const serviceAd = await ServiceAdModel.findById(id).populate("selfEmployed", "-password");
+        const serviceAd = await ServiceAdModel.findById(id).populate("selfEmployed", "-password")
 
         if (!serviceAd) {
-            res.status(404).json({ message: "Serviço não encontrado" });
-            return;
+            res.status(404).json({ message: "Serviço não encontrado" })
+            return
         }
 
-        res.status(200).json(serviceAd);
+        res.status(200).json(serviceAd)
     } catch (error: any) {
-        res.status(500).json({ message: "Erro ao buscar o serviço", error: error.message });
+        res.status(500).json({ message: "Erro ao buscar o serviço", error: error.message })
     }
 }
 
@@ -123,7 +123,7 @@ export async function editServiceAd(req: Request, res: Response): Promise<void> 
         const serviceAd = await ServiceAdModel.findById(id)
         if (!serviceAd) {
             res.status(404).json({ message: "Anúncio de serviço não encontrado." })
-            return;
+            return
         }
 
         // Verify Permission
