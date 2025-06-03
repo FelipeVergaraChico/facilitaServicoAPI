@@ -67,14 +67,18 @@ export async function getAppointmentsByUserId(req: Request, res: Response): Prom
 
         res.status(200).json(appointments)
     } catch (error) {
-        Logger.error(`Failed to get appointments for user ${req.params.id}: ${error}`)
-        res.status(500).json({ message: 'Internal server error' })
+        Logger.error(`Falha ao obter agendamentos para o usuário ${req.params.id}: ${error}`)
+        res.status(500).json({ message: 'Erro do Servidor Interno' })
     }
 }
 
 export async function acceptAppointment(req: Request, res: Response): Promise<void> {
     try {
         const { id } = req.params
+
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
         const appointment = await appointmentModel.findById(id)
 
         if (!appointment) {
@@ -82,24 +86,40 @@ export async function acceptAppointment(req: Request, res: Response): Promise<vo
             return
         }
 
+        if (!appointment.selfEmployed || appointment.selfEmployed._id.toString() !== user._id.toString()) {
+            res.status(403).json({ message: "Você não está autorizado a aceitar este Agendamento" })
+            return
+        }
+
         appointment.acceptedBySelfEmployed = true
+        appointment.status = "pending"
+
         await appointment.save()
 
-        Logger.info(`Agendamento ${id} aceito pelo autônomo`)
-        res.status(200).json({ message: "Agendamento aceito" })
+        Logger.info(`Agendamento ${id} aceito por autônomo ${user.email}`)
+
+        res.status(200).json({ message: "Agendamento aceito com sucesso", appointment })
+
     } catch (error: any) {
         Logger.error(`Erro ao aceitar agendamento: ${error.message}`)
-        res.status(500).json({ message: "Erro ao aceitar agendamento", error: error.message })
+        res.status(500).json({ message: "Erro do Servidor Interno" })
     }
 }
 
 export async function rejectAppointment(req: Request, res: Response): Promise<void> {
     try {
         const { id } = req.params
-        const appointment = await appointmentModel.findById(id)
+        const token = getToken(req)
+        const user = await getUserByToken(token)
 
+        const appointment = await appointmentModel.findById(id)
         if (!appointment) {
             res.status(404).json({ message: "Agendamento não encontrado" })
+            return
+        }
+
+        if (!appointment.selfEmployed || appointment.selfEmployed._id.toString() !== user._id.toString()) {
+            res.status(403).json({ message: "Você não está autorizado a rejeitar este Agendamento" })
             return
         }
 
@@ -107,49 +127,63 @@ export async function rejectAppointment(req: Request, res: Response): Promise<vo
         appointment.status = "rejected"
         await appointment.save()
 
-        Logger.info(`Agendamento ${id} rejeitado pelo autônomo`)
-        res.status(200).json({ message: "Agendamento rejeitado" })
+        res.status(200).json({ message: "Agendamento rejeitado com sucesso" })
     } catch (error: any) {
-        Logger.error(`Erro ao rejeitar agendamento: ${error.message}`)
-        res.status(500).json({ message: "Erro ao rejeitar agendamento", error: error.message })
+        res.status(500).json({ message: "Erro ao rejeitar Agendamento", error: error.message })
     }
 }
 
 export async function finishAppointment(req: Request, res: Response): Promise<void> {
     try {
         const { id } = req.params
-        const appointment = await appointmentModel.findById(id)
+        const token = getToken(req)
+        const user = await getUserByToken(token)
 
+        const appointment = await appointmentModel.findById(id)
         if (!appointment) {
             res.status(404).json({ message: "Agendamento não encontrado" })
+            return
+        }
+
+        if (!appointment.selfEmployed || appointment.selfEmployed._id.toString() !== user._id.toString()) {
+            res.status(403).json({ message: "Você não está autorizado a terminar esse Agendamento" })
             return
         }
 
         appointment.status = "finished"
         await appointment.save()
 
-        Logger.info(`Agendamento ${id} finalizado`)
-        res.status(200).json({ message: "Agendamento finalizado" })
+        res.status(200).json({ message: "Agendamento marcado como terminado" })
     } catch (error: any) {
-        Logger.error(`Erro ao finalizar agendamento: ${error.message}`)
-        res.status(500).json({ message: "Erro ao finalizar agendamento", error: error.message })
+        res.status(500).json({ message: "Erro ao finalizar Agendamento", error: error.message })
     }
 }
 
 export async function cancelAppointment(req: Request, res: Response): Promise<void> {
     try {
-        const { id } = req.params
-        const deleted = await appointmentModel.findByIdAndDelete(id)
+        const { id } = req.params;
+        const token = getToken(req);
+        const user = await getUserByToken(token);
 
-        if (!deleted) {
-            res.status(404).json({ message: "Agendamento não encontrado" })
-            return
+        const appointment = await appointmentModel.findById(id);
+        if (!appointment) {
+            res.status(404).json({ message: "Agendamento não encontrado" });
+            return;
         }
 
-        Logger.info(`Agendamento ${id} cancelado pelo cliente`)
-        res.status(200).json({ message: "Agendamento cancelado com sucesso" })
+        // Verifica se quem está cancelando é o cliente dono do agendamento
+        if (!appointment.client || appointment.client._id.toString() !== user._id.toString()) {
+            res.status(401).json({ message: "Não autorizado: apenas o cliente pode cancelar este agendamento" });
+            return;
+        }
+
+        await appointment.deleteOne();
+
+        Logger.info(`Agendamento ${id} cancelado pelo cliente ${user.name}`);
+
+        res.status(200).json({ message: "Agendamento cancelado com sucesso" });
     } catch (error: any) {
-        Logger.error(`Erro ao cancelar agendamento: ${error.message}`)
-        res.status(500).json({ message: "Erro ao cancelar agendamento", error: error.message })
+        Logger.error(`Erro ao cancelar agendamento: ${error.message}`);
+        res.status(500).json({ message: "Erro ao cancelar agendamento", error: error.message });
     }
 }
