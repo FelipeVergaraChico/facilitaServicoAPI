@@ -194,7 +194,6 @@ export async function cancelAppointment(req: Request, res: Response): Promise<vo
             return;
         }
 
-        // Verifica se quem está cancelando é o cliente dono do agendamento
         if (!appointment.client || appointment.client._id.toString() !== user._id.toString()) {
             res.status(401).json({ message: "Não autorizado: apenas o cliente pode cancelar este agendamento" });
             return;
