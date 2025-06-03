@@ -19,8 +19,8 @@ export async function createServiceAd(req: Request, res: Response): Promise<void
         const user = await getUserByToken(token)
 
         if (user.position !== "Self-employed") {
-            res.status(403).json({ message: "Apenas usuários autônomos podem criar anúncios de serviço" });
-            return;
+            res.status(403).json({ message: "Apenas usuários autônomos podem criar anúncios de serviço" })
+            return
         }
 
         // Create the service ad
