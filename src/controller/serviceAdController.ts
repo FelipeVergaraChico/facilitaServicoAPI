@@ -167,6 +167,10 @@ export async function deleteServiceAd(req: Request, res: Response): Promise<void
         }
 
         await ServiceAdModel.findByIdAndDelete(id)
+
+        Logger.info(`Usuário ${user.name} (ID: ${user._id}) excluiu o anúncio de serviço com ID ${serviceAd._id}`)
+
+        
         res.status(200).json({ message: "Serviço deletado com sucesso." })
     } catch (error: any) {
         res.status(500).json({ message: "Erro ao deletar o serviço.", error: error.message })
