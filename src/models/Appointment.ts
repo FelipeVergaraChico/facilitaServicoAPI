@@ -16,7 +16,6 @@ const appointmentSchema = new Schema(
         acceptedBySelfEmployed: {
             type: Boolean,
             default: null,
-            required: true
         },
         status: {
             type: String,
