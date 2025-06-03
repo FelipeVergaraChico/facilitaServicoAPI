@@ -1,7 +1,7 @@
 import { Router } from "express"
 
 // Controllers
-
+import { acceptAppointment, cancelAppointment, createAppointment, finishAppointment, getAppointmentById, getAppointmentsByClientId, getAppointmentsBySelfEmployedId, rejectAppointment } from "../controller/appointmentController"
 
 // Middlewares
 import verifyToken from "../middleware/verify-token"
@@ -11,18 +11,18 @@ import verifyToken from "../middleware/verify-token"
 
 const router = Router()
 
-router.post("/", verifyToken, /* Create Appointment */)
+router.post("/", verifyToken, createAppointment)
 
-router.get("/:id", verifyToken, /* Get Details of an Appointment */)
+router.get("/:id", verifyToken, getAppointmentById)
 
-router.get("/client/:id", verifyToken, /* View Appointments by Client Id */)
-router.get("/selfemployed/:id", verifyToken, /* View Appointments by selfemployed Id */)
+router.get("/client/:id", verifyToken, getAppointmentsByClientId)
+router.get("/selfemployed/:id", verifyToken, getAppointmentsBySelfEmployedId)
 
-router.patch("/:id/accept", verifyToken, /* Self Employed Accept Appointment */)
-router.patch("/:id/reject", verifyToken, /* Self Employed Reject Appointment */)
-router.patch("/:id/finish", verifyToken, /* Self Employed Finish Appointment */)
+router.patch("/:id/accept", verifyToken, acceptAppointment)
+router.patch("/:id/reject", verifyToken, rejectAppointment)
+router.patch("/:id/finish", verifyToken, finishAppointment)
 
-router.delete("/:id", verifyToken, /* Client cancel Appointment */)
+router.delete("/:id", verifyToken, cancelAppointment)
 
 
 export default router
