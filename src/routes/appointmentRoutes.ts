@@ -1,7 +1,7 @@
 import { Router } from "express"
 
 // Controllers
-import { acceptAppointment, cancelAppointment, createAppointment, finishAppointment, getAppointmentById, getAppointmentsByClientId, getAppointmentsBySelfEmployedId, rejectAppointment } from "../controller/appointmentController"
+import { acceptAppointment, cancelAppointment, createAppointment, finishAppointment, getAppointmentById, getAppointmentsByUserId, rejectAppointment } from "../controller/appointmentController"
 
 // Middlewares
 import verifyToken from "../middleware/verify-token"
@@ -15,8 +15,7 @@ router.post("/", verifyToken, createAppointment)
 
 router.get("/:id", verifyToken, getAppointmentById)
 
-router.get("/client/:id", verifyToken, getAppointmentsByClientId)
-router.get("/selfemployed/:id", verifyToken, getAppointmentsBySelfEmployedId)
+router.get("/user/:id", verifyToken, getAppointmentsByUserId)
 
 router.patch("/:id/accept", verifyToken, acceptAppointment)
 router.patch("/:id/reject", verifyToken, rejectAppointment)

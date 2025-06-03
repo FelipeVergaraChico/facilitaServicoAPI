@@ -54,27 +54,21 @@ export async function getAppointmentById(req: Request, res: Response): Promise<v
     }
 }
 
-export async function getAppointmentsByClientId(req: Request, res: Response): Promise<void> {
+export async function getAppointmentsByUserId(req: Request, res: Response): Promise<void> {
     try {
         const { id } = req.params
-        const appointments = await appointmentModel.find({ "client._id": id }).sort({ createdAt: -1 })
 
-        res.status(200).json({ appointments })
-    } catch (error: any) {
-        Logger.error(`Erro ao listar agendamentos por cliente: ${error.message}`)
-        res.status(500).json({ message: "Erro ao listar agendamentos", error: error.message })
-    }
-}
+        const appointments = await appointmentModel.find({
+            $or: [
+                { 'client._id': id },
+                { 'selfEmployed._id': id }
+            ]
+        })
 
-export async function getAppointmentsBySelfEmployedId(req: Request, res: Response): Promise<void> {
-    try {
-        const { id } = req.params
-        const appointments = await appointmentModel.find({ "selfEmployed._id": id }).sort({ createdAt: -1 })
-
-        res.status(200).json({ appointments })
-    } catch (error: any) {
-        Logger.error(`Erro ao listar agendamentos por autônomo: ${error.message}`)
-        res.status(500).json({ message: "Erro ao listar agendamentos", error: error.message })
+        res.status(200).json(appointments)
+    } catch (error) {
+        Logger.error(`Failed to get appointments for user ${req.params.id}: ${error}`)
+        res.status(500).json({ message: 'Internal server error' })
     }
 }
 
