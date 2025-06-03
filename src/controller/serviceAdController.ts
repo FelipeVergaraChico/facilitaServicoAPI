@@ -18,6 +18,11 @@ export async function createServiceAd(req: Request, res: Response): Promise<void
         const token = getToken(req)
         const user = await getUserByToken(token)
 
+        if (user.position !== "Self-employed") {
+            res.status(403).json({ message: "Apenas usuários autônomos podem criar anúncios de serviço" });
+            return;
+        }
+
         // Create the service ad
         const serviceAd = new ServiceAdModel({
             title,
@@ -170,7 +175,7 @@ export async function deleteServiceAd(req: Request, res: Response): Promise<void
 
         Logger.info(`Usuário ${user.name} (ID: ${user._id}) excluiu o anúncio de serviço com ID ${serviceAd._id}`)
 
-        
+
         res.status(200).json({ message: "Serviço deletado com sucesso." })
     } catch (error: any) {
         res.status(500).json({ message: "Erro ao deletar o serviço.", error: error.message })
