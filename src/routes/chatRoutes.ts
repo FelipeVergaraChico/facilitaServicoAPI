@@ -1,7 +1,7 @@
 import { Router } from "express"
 
 // Controllers
-import { listMessages, sendMessage } from "../controller/chatController"
+import { getChatsByUser, listMessages, sendMessage } from "../controller/chatController"
 
 // Middlewares
 import verifyToken from "../middleware/verify-token"
@@ -12,6 +12,8 @@ import { sendMessageValidation } from "../middleware/chatValidations"
 
 
 const router = Router()
+
+router.get("/", verifyToken, getChatsByUser)
 
 router.post("/:chatId/message", verifyToken, sendMessageValidation(), validate, sendMessage)
 

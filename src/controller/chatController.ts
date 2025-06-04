@@ -3,12 +3,27 @@ import { Request, Response } from "express"
 // Models
 import { messageModel } from "../models/Message"
 import { chatModel } from "../models/Chat"
+
+// Middlewares
 import getToken from "../middleware/get-token"
 import getUserByToken from "../middleware/get-user-by-token"
 
-// Middlewares
 
+export async function getChatsByUser(req: Request, res: Response): Promise<void> {
+    try {
+        const userToken = getToken(req)
+        const user = await getUserByToken(userToken)
 
+        // Search all chats where user._id is in participants
+        const chats = await chatModel.find({
+            participants: user._id,
+        }).populate("participants appointmentId")
+
+        res.status(200).json(chats)
+    } catch (error: any) {
+        res.status(500).json({ message: "Erro ao buscar chats" })
+    }
+}
 
 export async function sendMessage(req: Request, res: Response): Promise<void> {
     try {
