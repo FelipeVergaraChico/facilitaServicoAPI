@@ -47,10 +47,21 @@ export async function sendMessage(req: Request, res: Response): Promise<void> {
             return
         }
 
+        let receiverId
+
+        if(chat.participants[0]._id.toString() === user._id.toString()){
+            receiverId = chat.participants[1]
+        }
+        
+        if(chat.participants[1]._id.toString() === user._id.toString()){
+            receiverId = chat.participants[0]
+        }
+
         // Create Message
         const newMessage = await messageModel.create({
             chatId,
             senderId: user._id,
+            receiverId,
             message
         })
 
