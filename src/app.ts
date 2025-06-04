@@ -16,6 +16,7 @@ import db from "../config/db";
 import userRoutes from "./routes/userRoutes"
 import serviceAdRoutes from "./routes/serviceAdRoutes"
 import appointmentRoutes from "./routes/appointmentRoutes"
+import chatRoutes from "./routes/chatRoutes"
 
 // Logger
 import Logger from "../config/logger";
@@ -28,6 +29,7 @@ app.use(morganMiddleware)
 app.use("/user", userRoutes)
 app.use("/servicead", serviceAdRoutes)
 app.use("/appointments", appointmentRoutes)
+app.use("/chat", chatRoutes)
 
 
 // app port
