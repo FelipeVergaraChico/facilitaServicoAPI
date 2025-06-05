@@ -32,6 +32,12 @@ app.use("/appointments", appointmentRoutes)
 app.use("/chat", chatRoutes)
 
 
+// Server Dont restart
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Server Online" })
+})
+
+
 // app port
 const port = config.get<number>("port");
 
