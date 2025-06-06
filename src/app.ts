@@ -1,12 +1,15 @@
 // ENV variables
 require("dotenv").config();
 
-import express from "express";
-import config from "config";
+import express from "express"
+import config from "config"
+import cors from "cors"
 
 const app = express();
 
 // Middleware
+app.use(cors())
+
 app.use(express.json());
 
 // DB
