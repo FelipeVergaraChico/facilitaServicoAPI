@@ -10,6 +10,9 @@ const app = express();
 // Middleware
 app.use(cors())
 
+// Public folder for images
+app.use(express.static("public"))
+
 app.use(express.json());
 
 // DB
